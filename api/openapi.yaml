@@ -1,0 +1,542 @@
+openapi: 3.1.0
+info:
+  contact:
+    name: Blackman AI Support
+    url: https://github.com/your-org/blackman
+  description: |-
+    A transparent AI API proxy that optimizes token usage to reduce costs.
+
+    ## Authentication
+
+    Blackman AI supports two authentication methods:
+
+    ### 1. API Key (Recommended for integrations)
+
+    Use the API key created from your dashboard:
+
+    ```bash
+    curl -X POST https://ap.useblackman.ai/v1/completions \
+      -H "Authorization: Bearer sk_your_api_key_here" \
+      -H "Content-Type: application/json" \
+      -d '{"provider": "OpenAI", "model": "gpt-4", "messages": [{"role": "user", "content": "Hello!"}]}'
+    ```
+
+    ### 2. JWT Token (For web UI)
+
+    Obtain a JWT token by logging in:
+
+    ```bash
+    curl -X POST https://ap.useblackman.ai/v1/auth/login \
+      -H "Content-Type: application/json" \
+      -d '{"email": "user@example.com", "password": "yourpassword"}'
+    ```
+
+    Then use the token:
+
+    ```bash
+    curl -X POST https://ap.useblackman.ai/v1/completions \
+      -H "Authorization: Bearer your_jwt_token" \
+      -H "Content-Type: application/json" \
+      -d '{...}'
+    ```
+
+    ### Provider API Keys (Optional)
+
+    You can optionally provide your own LLM provider API key via the `X-Provider-Api-Key` header, or store it in your account settings.
+
+    ## Client SDKs
+
+    Auto-generated SDKs are available for 10 languages:
+
+    - **TypeScript**: [View Docs](/v1/sdks/typescript)
+    - **Python**: [View Docs](/v1/sdks/python)
+    - **Go**: [View Docs](/v1/sdks/go)
+    - **Java**: [View Docs](/v1/sdks/java)
+    - **Ruby**: [View Docs](/v1/sdks/ruby)
+    - **PHP**: [View Docs](/v1/sdks/php)
+    - **C#**: [View Docs](/v1/sdks/csharp)
+    - **Rust**: [View Docs](/v1/sdks/rust)
+    - **Swift**: [View Docs](/v1/sdks/swift)
+    - **Kotlin**: [View Docs](/v1/sdks/kotlin)
+
+    All SDKs are generated from this OpenAPI spec using [openapi-generator](https://openapi-generator.tech).
+
+    ## Quick Start
+
+    ```python
+    # Python example with API key
+    import blackman_client
+    from blackman_client import CompletionRequest
+
+    configuration = blackman_client.Configuration(
+        host="http://localhost:8080",
+        access_token="sk_your_api_key_here"  # Your Blackman API key
+    )
+
+    with blackman_client.ApiClient(configuration) as api_client:
+        api = blackman_client.CompletionsApi(api_client)
+        response = api.completions(
+            CompletionRequest(
+                provider="OpenAI",
+                model="gpt-4o",
+                messages=[{"role": "user", "content": "Hello!"}]
+            )
+        )
+    ```
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: Blackman AI API
+  version: 0.1.0
+servers:
+- description: Production API server
+  url: https://app.useblackman.ai/v1
+tags:
+- description: AI completion proxy endpoints
+  name: completions
+- description: End-user feedback collection
+  name: feedback
+- description: Semantic cache management and analytics
+  name: semantic-cache
+paths:
+  /v1/completions:
+    post:
+      operationId: completions
+      parameters:
+      - description: Optional provider API key to override stored or system keys
+        explode: false
+        in: header
+        name: X-Provider-Api-Key
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompletionRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompletionResponse"
+          description: AI completion response
+        "401":
+          description: Unauthorized - missing or invalid authentication token
+        "402":
+          description: Payment required - no active subscription
+        "500":
+          description: Provider error
+        "503":
+          description: Service unavailable - provider API key not configured
+      security:
+      - BearerAuth: []
+      tags:
+      - completions
+  /v1/feedback:
+    post:
+      operationId: submit_feedback
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitFeedbackRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmitFeedbackResponse"
+          description: Feedback submitted successfully
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+      - BearerAuth: []
+      summary: Submit feedback for a completion response
+      tags:
+      - feedback
+  /v1/semantic-cache/config:
+    get:
+      operationId: get_config
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SemanticCacheConfig"
+          description: Cache configuration retrieved successfully
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+      - BearerAuth: []
+      summary: Get semantic cache configuration for the current account
+      tags:
+      - semantic-cache
+    put:
+      operationId: update_config
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SemanticCacheConfig"
+        required: true
+      responses:
+        "204":
+          description: Cache configuration updated successfully
+        "400":
+          description: Invalid configuration values
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+      - BearerAuth: []
+      summary: Update semantic cache configuration for the current account
+      tags:
+      - semantic-cache
+  /v1/semantic-cache/invalidate:
+    delete:
+      operationId: invalidate_all
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidateResponse"
+          description: All cache entries invalidated successfully
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+        "503":
+          description: Semantic cache not configured
+      security:
+      - BearerAuth: []
+      summary: Invalidate all cache entries for the current account
+      tags:
+      - semantic-cache
+  /v1/semantic-cache/stats:
+    get:
+      operationId: get_stats
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SemanticCacheStats"
+          description: Cache statistics retrieved successfully
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      security:
+      - BearerAuth: []
+      summary: Get semantic cache statistics including hit rate and savings
+      tags:
+      - semantic-cache
+components:
+  schemas:
+    Choice:
+      example:
+        finish_reason: finish_reason
+        index: 0
+        message:
+          role: role
+          content: content
+      properties:
+        finish_reason:
+          nullable: true
+          type: string
+        index:
+          format: int32
+          minimum: 0
+          type: integer
+        message:
+          $ref: "#/components/schemas/Message"
+      required:
+      - index
+      - message
+    CompletionOptions:
+      properties:
+        max_tokens:
+          example: 1024
+          format: int32
+          minimum: 0
+          nullable: true
+          type: integer
+        stop:
+          items:
+            type: string
+          nullable: true
+          type: array
+        stream:
+          nullable: true
+          type: boolean
+        temperature:
+          example: 0.7
+          format: float
+          nullable: true
+          type: number
+        top_p:
+          example: 0.9
+          format: float
+          nullable: true
+          type: number
+    CompletionRequest:
+      allOf:
+      - description: Optional parameters for tuning the completion
+        nullable: true
+        oneOf:
+        - nullable: true
+          properties:
+            max_tokens:
+              example: 1024
+              format: int32
+              minimum: 0
+              nullable: true
+              type: integer
+            stop:
+              items:
+                type: string
+              nullable: true
+              type: array
+            stream:
+              nullable: true
+              type: boolean
+            temperature:
+              example: 0.7
+              format: float
+              nullable: true
+              type: number
+            top_p:
+              example: 0.9
+              format: float
+              nullable: true
+              type: number
+      - properties:
+          messages:
+            items:
+              $ref: "#/components/schemas/Message"
+            type: array
+          model:
+            example: gpt-4
+            type: string
+          provider:
+            $ref: "#/components/schemas/Provider"
+        required:
+        - messages
+        - model
+        - provider
+      example:
+        provider: OpenAI
+        messages:
+        - role: role
+          content: content
+        - role: role
+          content: content
+        model: gpt-4
+    CompletionResponse:
+      example:
+        provider: OpenAI
+        created: 6
+        usage:
+          completion_tokens: 0
+          prompt_tokens: 0
+          total_tokens: 0
+        model: model
+        id: id
+        choices:
+        - finish_reason: finish_reason
+          index: 0
+          message:
+            role: role
+            content: content
+        - finish_reason: finish_reason
+          index: 0
+          message:
+            role: role
+            content: content
+      properties:
+        choices:
+          items:
+            $ref: "#/components/schemas/Choice"
+          type: array
+        created:
+          format: int64
+          type: integer
+        id:
+          type: string
+        model:
+          type: string
+        provider:
+          $ref: "#/components/schemas/Provider"
+        usage:
+          $ref: "#/components/schemas/Usage"
+      required:
+      - choices
+      - created
+      - id
+      - model
+      - provider
+      - usage
+    InvalidateResponse:
+      example:
+        message: message
+      properties:
+        message:
+          description: Success message
+          type: string
+      required:
+      - message
+    Message:
+      example:
+        role: role
+        content: content
+      properties:
+        content:
+          type: string
+        role:
+          description: "\"user\", \"assistant\", \"system\""
+          type: string
+      required:
+      - content
+      - role
+    Provider:
+      enum:
+      - OpenAI
+      - Anthropic
+      - Gemini
+      - Mistral
+      - Groq
+      type: string
+    SemanticCacheConfig:
+      example:
+        similarity_threshold: 0.8008281904610115
+        ttl_seconds: 6
+        enabled: true
+      properties:
+        enabled:
+          description: Whether semantic caching is enabled
+          type: boolean
+        similarity_threshold:
+          description: Similarity threshold for cache hits (0.0-1.0)
+          format: double
+          type: number
+        ttl_seconds:
+          description: Time-to-live for cache entries in seconds
+          format: int64
+          type: integer
+      required:
+      - enabled
+      - similarity_threshold
+      - ttl_seconds
+    SemanticCacheStats:
+      example:
+        avg_similarity_score: 0.8008281904610115
+        total_hits: 0
+        tokens_saved: 0
+        hit_rate: 1.4658129805029452
+        cost_saved: 6.027456183070403
+        total_misses: 0
+      properties:
+        avg_similarity_score:
+          description: Average similarity score for cache hits
+          format: double
+          type: number
+        cost_saved:
+          description: Total cost saved from cache hits
+          format: double
+          type: number
+        hit_rate:
+          description: Cache hit rate as a percentage
+          format: double
+          type: number
+        tokens_saved:
+          description: Total tokens saved from cache hits
+          format: int64
+          minimum: 0
+          type: integer
+        total_hits:
+          description: Total number of cache hits
+          format: int64
+          minimum: 0
+          type: integer
+        total_misses:
+          description: Total number of cache misses
+          format: int64
+          minimum: 0
+          type: integer
+      required:
+      - avg_similarity_score
+      - cost_saved
+      - hit_rate
+      - tokens_saved
+      - total_hits
+      - total_misses
+    SubmitFeedbackRequest:
+      example:
+        metadata: "{}"
+        response_id: response_id
+        is_positive: true
+      properties:
+        is_positive:
+          description: "True for thumbs up, false for thumbs down"
+          type: boolean
+        metadata:
+          description: "Optional metadata (e.g., user_agent, session_id, etc.)"
+          nullable: true
+          type: object
+        response_id:
+          description: The response ID from the completion request
+          type: string
+      required:
+      - is_positive
+      - response_id
+    SubmitFeedbackResponse:
+      example:
+        id: id
+        message: message
+      properties:
+        id:
+          type: string
+        message:
+          type: string
+      required:
+      - id
+      - message
+    Usage:
+      example:
+        completion_tokens: 0
+        prompt_tokens: 0
+        total_tokens: 0
+      properties:
+        completion_tokens:
+          format: int32
+          minimum: 0
+          type: integer
+        prompt_tokens:
+          format: int32
+          minimum: 0
+          type: integer
+        total_tokens:
+          format: int32
+          minimum: 0
+          type: integer
+      required:
+      - completion_tokens
+      - prompt_tokens
+      - total_tokens
+  securitySchemes:
+    BearerAuth:
+      scheme: bearer
+      type: http
+
