@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <PackageId>Blackman.Client</PackageId>
-    <Version>0.0.5</Version>
+    <Version>0.0.9</Version>
     <Authors>Blackman AI</Authors>
     <Company>Blackman AI</Company>
     <Description>Official C# client for Blackman AI - The AI API proxy that optimizes token usage to reduce costs</Description>

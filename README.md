@@ -30,7 +30,7 @@ Install-Package Blackman.Client
 ### PackageReference
 
 ```xml
-<PackageReference Include="Blackman.Client" Version="0.0.5" />
+<PackageReference Include="Blackman.Client" Version="0.0.9" />
 ```
 
 ## Quick Start
