@@ -26,37 +26,41 @@ using Blackman.Client.Client;
 namespace Blackman.Client.Model
 {
     /// <summary>
-    /// Message
+    /// Content part for multimodal messages (vision support)
     /// </summary>
-    public partial class Message : IValidatableObject
+    public partial class ContentPart : IValidatableObject
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Message" /> class.
+        /// Initializes a new instance of the <see cref="ContentPart" /> class.
         /// </summary>
-        /// <param name="content">content</param>
-        /// <param name="role">\&quot;user\&quot;, \&quot;assistant\&quot;, \&quot;system\&quot;</param>
-        [JsonConstructor]
-        public Message(MessageContent content, string role)
+        /// <param name="contentPartOneOf"></param>
+        public ContentPart(ContentPartOneOf contentPartOneOf)
         {
-            Content = content;
-            Role = role;
+            ContentPartOneOf = contentPartOneOf;
+            OnCreated();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ContentPart" /> class.
+        /// </summary>
+        /// <param name="contentPartOneOf1"></param>
+        public ContentPart(ContentPartOneOf1 contentPartOneOf1)
+        {
+            ContentPartOneOf1 = contentPartOneOf1;
             OnCreated();
         }
 
         partial void OnCreated();
 
         /// <summary>
-        /// Gets or Sets Content
+        /// Gets or Sets ContentPartOneOf
         /// </summary>
-        [JsonPropertyName("content")]
-        public MessageContent Content { get; set; }
+        public ContentPartOneOf? ContentPartOneOf { get; set; }
 
         /// <summary>
-        /// \&quot;user\&quot;, \&quot;assistant\&quot;, \&quot;system\&quot;
+        /// Gets or Sets ContentPartOneOf1
         /// </summary>
-        /// <value>\&quot;user\&quot;, \&quot;assistant\&quot;, \&quot;system\&quot;</value>
-        [JsonPropertyName("role")]
-        public string Role { get; set; }
+        public ContentPartOneOf1? ContentPartOneOf1 { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -65,9 +69,7 @@ namespace Blackman.Client.Model
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append("class Message {\n");
-            sb.Append("  Content: ").Append(Content).Append("\n");
-            sb.Append("  Role: ").Append(Role).Append("\n");
+            sb.Append("class ContentPart {\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -84,19 +86,19 @@ namespace Blackman.Client.Model
     }
 
     /// <summary>
-    /// A Json converter for type <see cref="Message" />
+    /// A Json converter for type <see cref="ContentPart" />
     /// </summary>
-    public class MessageJsonConverter : JsonConverter<Message>
+    public class ContentPartJsonConverter : JsonConverter<ContentPart>
     {
         /// <summary>
-        /// Deserializes json to <see cref="Message" />
+        /// Deserializes json to <see cref="ContentPart" />
         /// </summary>
         /// <param name="utf8JsonReader"></param>
         /// <param name="typeToConvert"></param>
         /// <param name="jsonSerializerOptions"></param>
         /// <returns></returns>
         /// <exception cref="JsonException"></exception>
-        public override Message Read(ref Utf8JsonReader utf8JsonReader, Type typeToConvert, JsonSerializerOptions jsonSerializerOptions)
+        public override ContentPart Read(ref Utf8JsonReader utf8JsonReader, Type typeToConvert, JsonSerializerOptions jsonSerializerOptions)
         {
             int currentDepth = utf8JsonReader.CurrentDepth;
 
@@ -105,8 +107,27 @@ namespace Blackman.Client.Model
 
             JsonTokenType startingTokenType = utf8JsonReader.TokenType;
 
-            Option<MessageContent?> content = default;
-            Option<string?> role = default;
+            ContentPartOneOf? contentPartOneOf = default;
+            ContentPartOneOf1? contentPartOneOf1 = default;
+
+            Utf8JsonReader utf8JsonReaderOneOf = utf8JsonReader;
+            while (utf8JsonReaderOneOf.Read())
+            {
+                if (startingTokenType == JsonTokenType.StartObject && utf8JsonReaderOneOf.TokenType == JsonTokenType.EndObject && currentDepth == utf8JsonReaderOneOf.CurrentDepth)
+                    break;
+
+                if (startingTokenType == JsonTokenType.StartArray && utf8JsonReaderOneOf.TokenType == JsonTokenType.EndArray && currentDepth == utf8JsonReaderOneOf.CurrentDepth)
+                    break;
+
+                if (utf8JsonReaderOneOf.TokenType == JsonTokenType.PropertyName && currentDepth == utf8JsonReaderOneOf.CurrentDepth - 1)
+                {
+                    Utf8JsonReader utf8JsonReaderContentPartOneOf = utf8JsonReader;
+                    ClientUtils.TryDeserialize<ContentPartOneOf?>(ref utf8JsonReaderContentPartOneOf, jsonSerializerOptions, out contentPartOneOf);
+
+                    Utf8JsonReader utf8JsonReaderContentPartOneOf1 = utf8JsonReader;
+                    ClientUtils.TryDeserialize<ContentPartOneOf1?>(ref utf8JsonReaderContentPartOneOf1, jsonSerializerOptions, out contentPartOneOf1);
+                }
+            }
 
             while (utf8JsonReader.Read())
             {
@@ -123,66 +144,46 @@ namespace Blackman.Client.Model
 
                     switch (localVarJsonPropertyName)
                     {
-                        case "content":
-                            content = new Option<MessageContent?>(JsonSerializer.Deserialize<MessageContent>(ref utf8JsonReader, jsonSerializerOptions)!);
-                            break;
-                        case "role":
-                            role = new Option<string?>(utf8JsonReader.GetString()!);
-                            break;
                         default:
                             break;
                     }
                 }
             }
 
-            if (!content.IsSet)
-                throw new ArgumentException("Property is required for class Message.", nameof(content));
+            if (contentPartOneOf != null)
+                return new ContentPart(contentPartOneOf);
 
-            if (!role.IsSet)
-                throw new ArgumentException("Property is required for class Message.", nameof(role));
+            if (contentPartOneOf1 != null)
+                return new ContentPart(contentPartOneOf1);
 
-            if (content.IsSet && content.Value == null)
-                throw new ArgumentNullException(nameof(content), "Property is not nullable for class Message.");
-
-            if (role.IsSet && role.Value == null)
-                throw new ArgumentNullException(nameof(role), "Property is not nullable for class Message.");
-
-            return new Message(content.Value!, role.Value!);
+            throw new JsonException();
         }
 
         /// <summary>
-        /// Serializes a <see cref="Message" />
+        /// Serializes a <see cref="ContentPart" />
         /// </summary>
         /// <param name="writer"></param>
-        /// <param name="message"></param>
+        /// <param name="contentPart"></param>
         /// <param name="jsonSerializerOptions"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public override void Write(Utf8JsonWriter writer, Message message, JsonSerializerOptions jsonSerializerOptions)
+        public override void Write(Utf8JsonWriter writer, ContentPart contentPart, JsonSerializerOptions jsonSerializerOptions)
         {
             writer.WriteStartObject();
 
-            WriteProperties(writer, message, jsonSerializerOptions);
+            WriteProperties(writer, contentPart, jsonSerializerOptions);
             writer.WriteEndObject();
         }
 
         /// <summary>
-        /// Serializes the properties of <see cref="Message" />
+        /// Serializes the properties of <see cref="ContentPart" />
         /// </summary>
         /// <param name="writer"></param>
-        /// <param name="message"></param>
+        /// <param name="contentPart"></param>
         /// <param name="jsonSerializerOptions"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public void WriteProperties(Utf8JsonWriter writer, Message message, JsonSerializerOptions jsonSerializerOptions)
+        public void WriteProperties(Utf8JsonWriter writer, ContentPart contentPart, JsonSerializerOptions jsonSerializerOptions)
         {
-            if (message.Content == null)
-                throw new ArgumentNullException(nameof(message.Content), "Property is required for class Message.");
 
-            if (message.Role == null)
-                throw new ArgumentNullException(nameof(message.Role), "Property is required for class Message.");
-
-            writer.WritePropertyName("content");
-            JsonSerializer.Serialize(writer, message.Content, jsonSerializerOptions);
-            writer.WriteString("role", message.Role);
         }
     }
 }

@@ -111,6 +111,10 @@ namespace Blackman.Client.Client
                 return boolean
                     ? "true"
                     : "false";
+            if (obj is ContentPartOneOf.TypeEnum contentPartOneOfTypeEnum)
+                return ContentPartOneOf.TypeEnumToJsonValue(contentPartOneOfTypeEnum);
+            if (obj is ContentPartOneOf1.TypeEnum contentPartOneOf1TypeEnum)
+                return ContentPartOneOf1.TypeEnumToJsonValue(contentPartOneOf1TypeEnum);
             if (obj is Provider provider)
                 return ProviderValueConverter.ToJsonValue(provider);
             if (obj is ICollection collection)

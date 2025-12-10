@@ -47,8 +47,13 @@ namespace Blackman.Client.Client
             _jsonOptions.Converters.Add(new CompletionOptionsJsonConverter());
             _jsonOptions.Converters.Add(new CompletionRequestJsonConverter());
             _jsonOptions.Converters.Add(new CompletionResponseJsonConverter());
+            _jsonOptions.Converters.Add(new ContentPartJsonConverter());
+            _jsonOptions.Converters.Add(new ContentPartOneOfJsonConverter());
+            _jsonOptions.Converters.Add(new ContentPartOneOf1JsonConverter());
+            _jsonOptions.Converters.Add(new ImageUrlJsonConverter());
             _jsonOptions.Converters.Add(new InvalidateResponseJsonConverter());
             _jsonOptions.Converters.Add(new MessageJsonConverter());
+            _jsonOptions.Converters.Add(new MessageContentJsonConverter());
             _jsonOptions.Converters.Add(new ProviderJsonConverter());
             _jsonOptions.Converters.Add(new ProviderNullableJsonConverter());
             _jsonOptions.Converters.Add(new SemanticCacheConfigJsonConverter());

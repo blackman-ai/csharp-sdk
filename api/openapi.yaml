@@ -251,7 +251,7 @@ components:
         index: 0
         message:
           role: role
-          content: content
+          content: MessageContent
       properties:
         finish_reason:
           nullable: true
@@ -343,9 +343,9 @@ components:
         provider: OpenAI
         messages:
         - role: role
-          content: content
+          content: MessageContent
         - role: role
-          content: content
+          content: MessageContent
         model: gpt-4
     CompletionResponse:
       example:
@@ -362,12 +362,12 @@ components:
           index: 0
           message:
             role: role
-            content: content
+            content: MessageContent
         - finish_reason: finish_reason
           index: 0
           message:
             role: role
-            content: content
+            content: MessageContent
       properties:
         choices:
           items:
@@ -391,6 +391,21 @@ components:
       - model
       - provider
       - usage
+    ContentPart:
+      description: Content part for multimodal messages (vision support)
+      oneOf:
+      - $ref: "#/components/schemas/ContentPart_oneOf"
+      - $ref: "#/components/schemas/ContentPart_oneOf_1"
+    ImageUrl:
+      properties:
+        detail:
+          description: "Optional detail level: \"auto\", \"low\", or \"high\""
+          nullable: true
+          type: string
+        url:
+          type: string
+      required:
+      - url
     InvalidateResponse:
       example:
         message: message
@@ -403,16 +418,26 @@ components:
     Message:
       example:
         role: role
-        content: content
+        content: MessageContent
       properties:
         content:
-          type: string
+          $ref: "#/components/schemas/MessageContent"
         role:
           description: "\"user\", \"assistant\", \"system\""
           type: string
       required:
       - content
       - role
+    MessageContent:
+      description: Message content can be either a simple string or an array of content
+        parts (for vision)
+      oneOf:
+      - description: Simple text content
+        type: string
+      - description: Multimodal content (text + images)
+        items:
+          $ref: "#/components/schemas/ContentPart"
+        type: array
     Provider:
       enum:
       - OpenAI
@@ -545,6 +570,28 @@ components:
         This metadata is logged with the request and can be used for filtering/analysis.
       nullable: true
       type: object
+    ContentPart_oneOf:
+      properties:
+        text:
+          type: string
+        type:
+          enum:
+          - text
+          type: string
+      required:
+      - text
+      - type
+    ContentPart_oneOf_1:
+      properties:
+        image_url:
+          $ref: "#/components/schemas/ImageUrl"
+        type:
+          enum:
+          - image_url
+          type: string
+      required:
+      - image_url
+      - type
   securitySchemes:
     BearerAuth:
       scheme: bearer

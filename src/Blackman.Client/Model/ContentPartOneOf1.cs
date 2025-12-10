@@ -26,37 +26,88 @@ using Blackman.Client.Client;
 namespace Blackman.Client.Model
 {
     /// <summary>
-    /// Message
+    /// ContentPartOneOf1
     /// </summary>
-    public partial class Message : IValidatableObject
+    public partial class ContentPartOneOf1 : IValidatableObject
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Message" /> class.
+        /// Initializes a new instance of the <see cref="ContentPartOneOf1" /> class.
         /// </summary>
-        /// <param name="content">content</param>
-        /// <param name="role">\&quot;user\&quot;, \&quot;assistant\&quot;, \&quot;system\&quot;</param>
+        /// <param name="imageUrl">imageUrl</param>
+        /// <param name="type">type</param>
         [JsonConstructor]
-        public Message(MessageContent content, string role)
+        public ContentPartOneOf1(ImageUrl imageUrl, TypeEnum type)
         {
-            Content = content;
-            Role = role;
+            ImageUrl = imageUrl;
+            Type = type;
             OnCreated();
         }
 
         partial void OnCreated();
 
         /// <summary>
-        /// Gets or Sets Content
+        /// Defines Type
         /// </summary>
-        [JsonPropertyName("content")]
-        public MessageContent Content { get; set; }
+        public enum TypeEnum
+        {
+            /// <summary>
+            /// Enum ImageUrl for value: image_url
+            /// </summary>
+            ImageUrl = 1
+        }
 
         /// <summary>
-        /// \&quot;user\&quot;, \&quot;assistant\&quot;, \&quot;system\&quot;
+        /// Returns a <see cref="TypeEnum"/>
         /// </summary>
-        /// <value>\&quot;user\&quot;, \&quot;assistant\&quot;, \&quot;system\&quot;</value>
-        [JsonPropertyName("role")]
-        public string Role { get; set; }
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public static TypeEnum TypeEnumFromString(string value)
+        {
+            if (value.Equals("image_url"))
+                return TypeEnum.ImageUrl;
+
+            throw new NotImplementedException($"Could not convert value to type TypeEnum: '{value}'");
+        }
+
+        /// <summary>
+        /// Returns a <see cref="TypeEnum"/>
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static TypeEnum? TypeEnumFromStringOrDefault(string value)
+        {
+            if (value.Equals("image_url"))
+                return TypeEnum.ImageUrl;
+
+            return null;
+        }
+
+        /// <summary>
+        /// Converts the <see cref="TypeEnum"/> to the json value
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public static string TypeEnumToJsonValue(TypeEnum value)
+        {
+            if (value == TypeEnum.ImageUrl)
+                return "image_url";
+
+            throw new NotImplementedException($"Value could not be handled: '{value}'");
+        }
+
+        /// <summary>
+        /// Gets or Sets Type
+        /// </summary>
+        [JsonPropertyName("type")]
+        public TypeEnum Type { get; set; }
+
+        /// <summary>
+        /// Gets or Sets ImageUrl
+        /// </summary>
+        [JsonPropertyName("image_url")]
+        public ImageUrl ImageUrl { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -65,9 +116,9 @@ namespace Blackman.Client.Model
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append("class Message {\n");
-            sb.Append("  Content: ").Append(Content).Append("\n");
-            sb.Append("  Role: ").Append(Role).Append("\n");
+            sb.Append("class ContentPartOneOf1 {\n");
+            sb.Append("  ImageUrl: ").Append(ImageUrl).Append("\n");
+            sb.Append("  Type: ").Append(Type).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -84,19 +135,19 @@ namespace Blackman.Client.Model
     }
 
     /// <summary>
-    /// A Json converter for type <see cref="Message" />
+    /// A Json converter for type <see cref="ContentPartOneOf1" />
     /// </summary>
-    public class MessageJsonConverter : JsonConverter<Message>
+    public class ContentPartOneOf1JsonConverter : JsonConverter<ContentPartOneOf1>
     {
         /// <summary>
-        /// Deserializes json to <see cref="Message" />
+        /// Deserializes json to <see cref="ContentPartOneOf1" />
         /// </summary>
         /// <param name="utf8JsonReader"></param>
         /// <param name="typeToConvert"></param>
         /// <param name="jsonSerializerOptions"></param>
         /// <returns></returns>
         /// <exception cref="JsonException"></exception>
-        public override Message Read(ref Utf8JsonReader utf8JsonReader, Type typeToConvert, JsonSerializerOptions jsonSerializerOptions)
+        public override ContentPartOneOf1 Read(ref Utf8JsonReader utf8JsonReader, Type typeToConvert, JsonSerializerOptions jsonSerializerOptions)
         {
             int currentDepth = utf8JsonReader.CurrentDepth;
 
@@ -105,8 +156,8 @@ namespace Blackman.Client.Model
 
             JsonTokenType startingTokenType = utf8JsonReader.TokenType;
 
-            Option<MessageContent?> content = default;
-            Option<string?> role = default;
+            Option<ImageUrl?> imageUrl = default;
+            Option<ContentPartOneOf1.TypeEnum?> type = default;
 
             while (utf8JsonReader.Read())
             {
@@ -123,11 +174,13 @@ namespace Blackman.Client.Model
 
                     switch (localVarJsonPropertyName)
                     {
-                        case "content":
-                            content = new Option<MessageContent?>(JsonSerializer.Deserialize<MessageContent>(ref utf8JsonReader, jsonSerializerOptions)!);
+                        case "image_url":
+                            imageUrl = new Option<ImageUrl?>(JsonSerializer.Deserialize<ImageUrl>(ref utf8JsonReader, jsonSerializerOptions)!);
                             break;
-                        case "role":
-                            role = new Option<string?>(utf8JsonReader.GetString()!);
+                        case "type":
+                            string? typeRawValue = utf8JsonReader.GetString();
+                            if (typeRawValue != null)
+                                type = new Option<ContentPartOneOf1.TypeEnum?>(ContentPartOneOf1.TypeEnumFromStringOrDefault(typeRawValue));
                             break;
                         default:
                             break;
@@ -135,54 +188,52 @@ namespace Blackman.Client.Model
                 }
             }
 
-            if (!content.IsSet)
-                throw new ArgumentException("Property is required for class Message.", nameof(content));
+            if (!imageUrl.IsSet)
+                throw new ArgumentException("Property is required for class ContentPartOneOf1.", nameof(imageUrl));
 
-            if (!role.IsSet)
-                throw new ArgumentException("Property is required for class Message.", nameof(role));
+            if (!type.IsSet)
+                throw new ArgumentException("Property is required for class ContentPartOneOf1.", nameof(type));
 
-            if (content.IsSet && content.Value == null)
-                throw new ArgumentNullException(nameof(content), "Property is not nullable for class Message.");
+            if (imageUrl.IsSet && imageUrl.Value == null)
+                throw new ArgumentNullException(nameof(imageUrl), "Property is not nullable for class ContentPartOneOf1.");
 
-            if (role.IsSet && role.Value == null)
-                throw new ArgumentNullException(nameof(role), "Property is not nullable for class Message.");
+            if (type.IsSet && type.Value == null)
+                throw new ArgumentNullException(nameof(type), "Property is not nullable for class ContentPartOneOf1.");
 
-            return new Message(content.Value!, role.Value!);
+            return new ContentPartOneOf1(imageUrl.Value!, type.Value!.Value!);
         }
 
         /// <summary>
-        /// Serializes a <see cref="Message" />
+        /// Serializes a <see cref="ContentPartOneOf1" />
         /// </summary>
         /// <param name="writer"></param>
-        /// <param name="message"></param>
+        /// <param name="contentPartOneOf1"></param>
         /// <param name="jsonSerializerOptions"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public override void Write(Utf8JsonWriter writer, Message message, JsonSerializerOptions jsonSerializerOptions)
+        public override void Write(Utf8JsonWriter writer, ContentPartOneOf1 contentPartOneOf1, JsonSerializerOptions jsonSerializerOptions)
         {
             writer.WriteStartObject();
 
-            WriteProperties(writer, message, jsonSerializerOptions);
+            WriteProperties(writer, contentPartOneOf1, jsonSerializerOptions);
             writer.WriteEndObject();
         }
 
         /// <summary>
-        /// Serializes the properties of <see cref="Message" />
+        /// Serializes the properties of <see cref="ContentPartOneOf1" />
         /// </summary>
         /// <param name="writer"></param>
-        /// <param name="message"></param>
+        /// <param name="contentPartOneOf1"></param>
         /// <param name="jsonSerializerOptions"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public void WriteProperties(Utf8JsonWriter writer, Message message, JsonSerializerOptions jsonSerializerOptions)
+        public void WriteProperties(Utf8JsonWriter writer, ContentPartOneOf1 contentPartOneOf1, JsonSerializerOptions jsonSerializerOptions)
         {
-            if (message.Content == null)
-                throw new ArgumentNullException(nameof(message.Content), "Property is required for class Message.");
+            if (contentPartOneOf1.ImageUrl == null)
+                throw new ArgumentNullException(nameof(contentPartOneOf1.ImageUrl), "Property is required for class ContentPartOneOf1.");
 
-            if (message.Role == null)
-                throw new ArgumentNullException(nameof(message.Role), "Property is required for class Message.");
-
-            writer.WritePropertyName("content");
-            JsonSerializer.Serialize(writer, message.Content, jsonSerializerOptions);
-            writer.WriteString("role", message.Role);
+            writer.WritePropertyName("image_url");
+            JsonSerializer.Serialize(writer, contentPartOneOf1.ImageUrl, jsonSerializerOptions);
+            var typeRawValue = ContentPartOneOf1.TypeEnumToJsonValue(contentPartOneOf1.Type);
+            writer.WriteString("type", typeRawValue);
         }
     }
 }

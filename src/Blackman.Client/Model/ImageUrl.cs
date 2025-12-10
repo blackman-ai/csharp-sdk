@@ -26,37 +26,44 @@ using Blackman.Client.Client;
 namespace Blackman.Client.Model
 {
     /// <summary>
-    /// Message
+    /// ImageUrl
     /// </summary>
-    public partial class Message : IValidatableObject
+    public partial class ImageUrl : IValidatableObject
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Message" /> class.
+        /// Initializes a new instance of the <see cref="ImageUrl" /> class.
         /// </summary>
-        /// <param name="content">content</param>
-        /// <param name="role">\&quot;user\&quot;, \&quot;assistant\&quot;, \&quot;system\&quot;</param>
+        /// <param name="url">url</param>
+        /// <param name="detail">Optional detail level: \&quot;auto\&quot;, \&quot;low\&quot;, or \&quot;high\&quot;</param>
         [JsonConstructor]
-        public Message(MessageContent content, string role)
+        public ImageUrl(string url, Option<string?> detail = default)
         {
-            Content = content;
-            Role = role;
+            Url = url;
+            DetailOption = detail;
             OnCreated();
         }
 
         partial void OnCreated();
 
         /// <summary>
-        /// Gets or Sets Content
+        /// Gets or Sets Url
         /// </summary>
-        [JsonPropertyName("content")]
-        public MessageContent Content { get; set; }
+        [JsonPropertyName("url")]
+        public string Url { get; set; }
 
         /// <summary>
-        /// \&quot;user\&quot;, \&quot;assistant\&quot;, \&quot;system\&quot;
+        /// Used to track the state of Detail
         /// </summary>
-        /// <value>\&quot;user\&quot;, \&quot;assistant\&quot;, \&quot;system\&quot;</value>
-        [JsonPropertyName("role")]
-        public string Role { get; set; }
+        [JsonIgnore]
+        [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+        public Option<string?> DetailOption { get; private set; }
+
+        /// <summary>
+        /// Optional detail level: \&quot;auto\&quot;, \&quot;low\&quot;, or \&quot;high\&quot;
+        /// </summary>
+        /// <value>Optional detail level: \&quot;auto\&quot;, \&quot;low\&quot;, or \&quot;high\&quot;</value>
+        [JsonPropertyName("detail")]
+        public string? Detail { get { return this.DetailOption; } set { this.DetailOption = new(value); } }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -65,9 +72,9 @@ namespace Blackman.Client.Model
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append("class Message {\n");
-            sb.Append("  Content: ").Append(Content).Append("\n");
-            sb.Append("  Role: ").Append(Role).Append("\n");
+            sb.Append("class ImageUrl {\n");
+            sb.Append("  Url: ").Append(Url).Append("\n");
+            sb.Append("  Detail: ").Append(Detail).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -84,19 +91,19 @@ namespace Blackman.Client.Model
     }
 
     /// <summary>
-    /// A Json converter for type <see cref="Message" />
+    /// A Json converter for type <see cref="ImageUrl" />
     /// </summary>
-    public class MessageJsonConverter : JsonConverter<Message>
+    public class ImageUrlJsonConverter : JsonConverter<ImageUrl>
     {
         /// <summary>
-        /// Deserializes json to <see cref="Message" />
+        /// Deserializes json to <see cref="ImageUrl" />
         /// </summary>
         /// <param name="utf8JsonReader"></param>
         /// <param name="typeToConvert"></param>
         /// <param name="jsonSerializerOptions"></param>
         /// <returns></returns>
         /// <exception cref="JsonException"></exception>
-        public override Message Read(ref Utf8JsonReader utf8JsonReader, Type typeToConvert, JsonSerializerOptions jsonSerializerOptions)
+        public override ImageUrl Read(ref Utf8JsonReader utf8JsonReader, Type typeToConvert, JsonSerializerOptions jsonSerializerOptions)
         {
             int currentDepth = utf8JsonReader.CurrentDepth;
 
@@ -105,8 +112,8 @@ namespace Blackman.Client.Model
 
             JsonTokenType startingTokenType = utf8JsonReader.TokenType;
 
-            Option<MessageContent?> content = default;
-            Option<string?> role = default;
+            Option<string?> url = default;
+            Option<string?> detail = default;
 
             while (utf8JsonReader.Read())
             {
@@ -123,11 +130,11 @@ namespace Blackman.Client.Model
 
                     switch (localVarJsonPropertyName)
                     {
-                        case "content":
-                            content = new Option<MessageContent?>(JsonSerializer.Deserialize<MessageContent>(ref utf8JsonReader, jsonSerializerOptions)!);
+                        case "url":
+                            url = new Option<string?>(utf8JsonReader.GetString()!);
                             break;
-                        case "role":
-                            role = new Option<string?>(utf8JsonReader.GetString()!);
+                        case "detail":
+                            detail = new Option<string?>(utf8JsonReader.GetString());
                             break;
                         default:
                             break;
@@ -135,54 +142,49 @@ namespace Blackman.Client.Model
                 }
             }
 
-            if (!content.IsSet)
-                throw new ArgumentException("Property is required for class Message.", nameof(content));
+            if (!url.IsSet)
+                throw new ArgumentException("Property is required for class ImageUrl.", nameof(url));
 
-            if (!role.IsSet)
-                throw new ArgumentException("Property is required for class Message.", nameof(role));
+            if (url.IsSet && url.Value == null)
+                throw new ArgumentNullException(nameof(url), "Property is not nullable for class ImageUrl.");
 
-            if (content.IsSet && content.Value == null)
-                throw new ArgumentNullException(nameof(content), "Property is not nullable for class Message.");
-
-            if (role.IsSet && role.Value == null)
-                throw new ArgumentNullException(nameof(role), "Property is not nullable for class Message.");
-
-            return new Message(content.Value!, role.Value!);
+            return new ImageUrl(url.Value!, detail);
         }
 
         /// <summary>
-        /// Serializes a <see cref="Message" />
+        /// Serializes a <see cref="ImageUrl" />
         /// </summary>
         /// <param name="writer"></param>
-        /// <param name="message"></param>
+        /// <param name="imageUrl"></param>
         /// <param name="jsonSerializerOptions"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public override void Write(Utf8JsonWriter writer, Message message, JsonSerializerOptions jsonSerializerOptions)
+        public override void Write(Utf8JsonWriter writer, ImageUrl imageUrl, JsonSerializerOptions jsonSerializerOptions)
         {
             writer.WriteStartObject();
 
-            WriteProperties(writer, message, jsonSerializerOptions);
+            WriteProperties(writer, imageUrl, jsonSerializerOptions);
             writer.WriteEndObject();
         }
 
         /// <summary>
-        /// Serializes the properties of <see cref="Message" />
+        /// Serializes the properties of <see cref="ImageUrl" />
         /// </summary>
         /// <param name="writer"></param>
-        /// <param name="message"></param>
+        /// <param name="imageUrl"></param>
         /// <param name="jsonSerializerOptions"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public void WriteProperties(Utf8JsonWriter writer, Message message, JsonSerializerOptions jsonSerializerOptions)
+        public void WriteProperties(Utf8JsonWriter writer, ImageUrl imageUrl, JsonSerializerOptions jsonSerializerOptions)
         {
-            if (message.Content == null)
-                throw new ArgumentNullException(nameof(message.Content), "Property is required for class Message.");
+            if (imageUrl.Url == null)
+                throw new ArgumentNullException(nameof(imageUrl.Url), "Property is required for class ImageUrl.");
 
-            if (message.Role == null)
-                throw new ArgumentNullException(nameof(message.Role), "Property is required for class Message.");
+            writer.WriteString("url", imageUrl.Url);
 
-            writer.WritePropertyName("content");
-            JsonSerializer.Serialize(writer, message.Content, jsonSerializerOptions);
-            writer.WriteString("role", message.Role);
+            if (imageUrl.DetailOption.IsSet)
+                if (imageUrl.DetailOption.Value != null)
+                    writer.WriteString("detail", imageUrl.Detail);
+                else
+                    writer.WriteNull("detail");
         }
     }
 }

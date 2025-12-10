@@ -1,11 +1,10 @@
-# Blackman.Client.Model.Message
+# Blackman.Client.Model.MessageContent
+Message content can be either a simple string or an array of content parts (for vision)
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Content** | [**MessageContent**](MessageContent.md) |  | 
-**Role** | **string** | \&quot;user\&quot;, \&quot;assistant\&quot;, \&quot;system\&quot; | 
 
 [[Back to Model list]](../../README.md#documentation-for-models) [[Back to API list]](../../README.md#documentation-for-api-endpoints) [[Back to README]](../../README.md)
 

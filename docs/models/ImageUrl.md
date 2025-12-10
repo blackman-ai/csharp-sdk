@@ -1,11 +1,11 @@
-# Blackman.Client.Model.Message
+# Blackman.Client.Model.ImageUrl
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Content** | [**MessageContent**](MessageContent.md) |  | 
-**Role** | **string** | \&quot;user\&quot;, \&quot;assistant\&quot;, \&quot;system\&quot; | 
+**Url** | **string** |  | 
+**Detail** | **string** | Optional detail level: \&quot;auto\&quot;, \&quot;low\&quot;, or \&quot;high\&quot; | [optional] 
 
 [[Back to Model list]](../../README.md#documentation-for-models) [[Back to API list]](../../README.md#documentation-for-api-endpoints) [[Back to README]](../../README.md)
 
